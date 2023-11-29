@@ -1,6 +1,6 @@
 import Notiflix from 'notiflix';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
@@ -9,7 +9,10 @@ import { Container } from './Container.styled';
 import { Title, Contacts } from './Title.styled';
 
 const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState(() => {
+    const contacts = JSON.parse(localStorage.getItem('contacts'));
+    return contacts?.length ? contacts : [];
+  });
   const [filter, setFilter] = useState('');
 
   const handleAddContactClick = ({ name, number }) => {
@@ -19,7 +22,7 @@ const App = () => {
       number,
     };
 
-    console.log(newObj);
+    // console.log(newObj);
 
     const existContact = contacts.find(contact => {
       return contact.name.toLowerCase().includes(newObj.name.toLowerCase());
@@ -50,12 +53,14 @@ const App = () => {
   };
 
   const filterNormalize = filter.toLowerCase();
-  console.log(contacts); //underfinde after alert????
+  // console.log(contacts); //underfinde after alert????
   const visibleContacts = contacts.filter(contact => {
     return contact.name.toLowerCase().includes(filterNormalize); //underfinde after alert cannot read property of underfinde
   });
 
-  // console.log(visibleContacst);
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
   return (
     <Container>
       <Title>PHONEBOOK</Title>
