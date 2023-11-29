@@ -72,6 +72,7 @@ const App = () => {
         name="filter"
         value={filter}
       />
+      <p>There are {contacts.length} contacts</p>
       <ContactList
         handleDelete={handleDelete}
         visibleContacst={visibleContacts}
