@@ -1,3 +1,5 @@
+import Notiflix from 'notiflix';
+
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm/ContactForm';
@@ -6,70 +8,72 @@ import Filter from './Filter/Filter';
 import { Container } from './Container.styled';
 import { Title, Contacts } from './Title.styled';
 
-
 const App = () => {
-  
-  const [contacts, setContacts] = useState([])
-  const [filter, setFilter] = useState('')
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-const handleAddContactClick = obj => {
+  const handleAddContactClick = ({ name, number }) => {
     const newObj = {
       id: nanoid(),
-      ...obj,
+      name,
+      number,
     };
-    console.log(obj);
+
     console.log(newObj);
 
-    const existContact = contacts.find(contact =>
-      contact.name.toLowerCase().includes(newObj.name.toLowerCase())
-    );
-// console.log(existContact);
-    setContacts(prevState => {
-      if (existContact) {
-        return alert(`Contact ${newObj.name} already exist`);
-      }
-      console.log(contacts);
-      return [...prevState, newObj];
-     
+    const existContact = contacts.find(contact => {
+      return contact.name.toLowerCase().includes(newObj.name.toLowerCase());
     });
-  console.log(newObj);
+    if (existContact) {
+      Notiflix.Notify.warning(`Contact ${newObj.name} already exist`, {
+        timeout: 2000,
+      });
+
+      // alert(`Contact ${newObj.name} already exist`);
+      return false;
+    }
+    setContacts(prevState => {
+      return [newObj, ...prevState];
+    });
+
+    Notiflix.Notify.success(`Contact ${newObj.name} succesfully add`, {
+      timeout: 2000,
+    });
+    return true;
   };
-  const handleFilterContact = e => {
-    setFilter( e.target.value );
+  const handleFilterContact = ({ target }) => {
+    setFilter(target.value);
   };
   const handleDelete = id => {
-   setContacts(prev => prev.id !== id)
+    setContacts(prev => prev.filter(contact => contact.id !== id));
+    Notiflix.Notify.info(`Contact  was deleted`);
   };
 
   const filterNormalize = filter.toLowerCase();
-  // console.log(filterNormalize);
-    const visibleContacst = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filterNormalize)
+  console.log(contacts); //underfinde after alert????
+  const visibleContacts = contacts.filter(contact => {
+    return contact.name.toLowerCase().includes(filterNormalize); //underfinde after alert cannot read property of underfinde
+  });
+
+  // console.log(visibleContacst);
+  return (
+    <Container>
+      <Title>PHONEBOOK</Title>
+      <ContactForm handleAddContact={handleAddContactClick} />
+
+      <Contacts>CONTACTS</Contacts>
+      <Filter
+        handleFilterContact={handleFilterContact}
+        name="filter"
+        value={filter}
+      />
+      <ContactList
+        handleDelete={handleDelete}
+        visibleContacst={visibleContacts}
+      />
+    </Container>
   );
-  console.log(visibleContacst);
-return (
-      <Container>
-        <Title>PHONEBOOK</Title>
-        <ContactForm handleAddContact={handleAddContactClick} />
-
-        <Contacts>CONTACTS</Contacts>
-        <Filter
-          handleFilterContact={handleFilterContact}
-          name="filter"
-          value={filter}
-        />
-        <ContactList
-          handleDelete={handleDelete}
-          visibleContacst={visibleContacst}
-        />
-      </Container>
-    );
-
-}
-
-
-
-
+};
 
 // class AppOld extends Component {
 //   state = {
